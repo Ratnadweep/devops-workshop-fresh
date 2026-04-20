@@ -1,17 +1,20 @@
 #!/bin/bash
+
 # Update packages
 apt update -y
 
 # Install Python + dependencies
-apt install -y python3 python3-pip python3-venv
+apt install -y python3 python3-pip python3-venv software-properties-common
 
-# Install Ansible + boto3 (AWS SDK)
-apt install -y software-properties-common
+# Install Ansible
 add-apt-repository --yes --update ppa:ansible/ansible
 apt install -y ansible
-pip3 install boto3 botocore
 
-# (Optional) Set default region so you don’t need to pass --region every time
+# Install AWS SDK + Ansible AWS collection
+pip3 install --upgrade boto3 botocore
+ansible-galaxy collection install amazon.aws
+
+# Configure AWS default region
 mkdir -p /home/ubuntu/.aws
 cat > /home/ubuntu/.aws/config <<EOF
 [default]
@@ -43,4 +46,12 @@ EOF
 
 chown -R ubuntu:ubuntu /opt/ansible
 
-echo "✅ Ansible + boto3 + aws_ec2 inventory configured successfully" > /tmp/ansible_setup.log
+# Disable SSH host key checking
+mkdir -p /etc/ansible
+cat > /etc/ansible/ansible.cfg <<EOF
+[defaults]
+host_key_checking = False
+deprecation_warnings = False
+EOF
+
+echo "✅ Ansible setup completed successfully" > /tmp/ansible_setup.log
