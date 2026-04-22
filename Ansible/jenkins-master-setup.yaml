@@ -1,33 +1,47 @@
 ---
-- hosts: jenkins-master
-  become: true 
-  tasks: 
-  - name: add jenkins key 
-    apt_key: 
-      url:  https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
-      state: present 
+- hosts: jenkins_master
+  become: true
+  tasks:
+  - name: Ensure keyrings directory exists
+    file:
+      path: /etc/apt/keyrings
+      state: directory
+      mode: '0755'
 
-  - name: add jenkins repo 
-    apt_repository: 
-      repo: 'deb https://pkg.jenkins.io/debian-stable binary/'
-      state: present 
+  - name: add jenkins key
+    get_url:
+      url: https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
+      dest: /etc/apt/keyrings/jenkins-keyring.asc
+      mode: '0644'
 
-  - name: install java 
-    apt: 
-      name: openjdk-11-jre
+  - name: add jenkins repo
+    apt_repository:
+      repo: "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
+      filename: jenkins
       state: present
 
-  - name: install jenkins 
-    apt: 
-      name: jenkins 
-      state: present 
+  - name: Update apt cache
+    apt:
+      update_cache: yes
 
-  - name: start jenkins service 
-    service: 
-      name: jenkins 
-      state: started 
+  - name: install java
+    apt:
+      name:
+        - fontconfig
+        - openjdk-21-jre
+      state: present
 
-  - name: enable jenkins to start at boot time 
-    service: 
-      name: jenkins 
-      enabled: yes 
+  - name: install jenkins
+    apt:
+      name: jenkins
+      state: present
+
+  - name: start jenkins service
+    service:
+      name: jenkins
+      state: started
+
+  - name: enable jenkins to start at boot time
+    service:
+      name: jenkins
+      enabled: yes
