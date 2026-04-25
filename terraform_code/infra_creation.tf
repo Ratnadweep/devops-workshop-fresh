@@ -23,6 +23,7 @@ resource "aws_instance" "demo-server" {
   # Attach IAM role depending on the instance
   iam_instance_profile = (
     each.key == "jenkins-master" ? aws_iam_instance_profile.jenkins_profile.name :
+    each.key == "build-slave" ? aws_iam_instance_profile.jenkins_profile.name :
     each.key == "ansible" ? aws_iam_instance_profile.ansible_profile.name :
     null
   )
