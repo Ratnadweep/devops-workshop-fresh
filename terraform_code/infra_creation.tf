@@ -139,6 +139,7 @@ resource "aws_route_table_association" "dpp-rta-public-subnet-02" {
 # -------------------------
 resource "aws_ecr_repository" "ttrend" {
   name = "ttrend"
+  force_delete = true
   image_scanning_configuration {
     scan_on_push = true
   }
