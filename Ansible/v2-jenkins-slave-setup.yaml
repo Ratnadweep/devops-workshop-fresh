@@ -45,3 +45,29 @@
       name: docker 
       enabled: yes 
       
+  - name: remove awscli v1 if present
+    apt:
+      name: awscli
+      state: absent
+
+  - name: download aws cli v2
+    get_url:
+      url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+      dest: /tmp/awscliv2.zip
+
+  - name: install unzip
+    apt:
+      name: unzip
+      state: present
+
+  - name: unzip aws cli
+    unarchive:
+      src: /tmp/awscliv2.zip
+      dest: /tmp
+      remote_src: yes
+
+  - name: install aws cli
+    command: ./aws/install
+    args:
+      chdir: /tmp
+      creates: /usr/local/bin/aws
